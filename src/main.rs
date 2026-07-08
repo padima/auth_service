@@ -11,11 +11,9 @@ pub mod model;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     let host = dotenv::var("SERVER").unwrap_or_else(|_| "127.0.0.1:8088".to_string());
-    let key = dotenv::var("KEY")
-        .map(|value| value.to_string())
-        .unwrap_or_else(|_| "my_secret_key".to_string());
+    let key = dotenv::var("KEY").unwrap_or_else(|_| "my_secret_key".to_string());
 
-    let app_state = model::AppState { key: key };
+    let app_state = model::AppState { key };
 
     let app: Router = Router::new()
         .route("/generate", post(endpoint::generate_post))
