@@ -102,4 +102,54 @@ mod tests {
 
         assert!(!result.as_ref().unwrap().is_valid);
     }
+
+    #[test]
+    fn test_validate_request_clone() {
+        let request = ValidateRequest {
+            token: "jwt_token".to_string(),
+            key: Some("my_key".to_string()),
+        };
+
+        let cloned = request.clone();
+        assert_eq!(cloned.token, request.token);
+        assert_eq!(cloned.key, request.key);
+    }
+
+    #[test]
+    fn test_validate_request_deserialize() {
+        let json = r#"{"token":"jwt_token","key":"my_key"}"#;
+        let request: ValidateRequest = serde_json::from_str(json).unwrap();
+
+        assert_eq!(request.token, "jwt_token");
+        assert_eq!(request.key, Some("my_key".to_string()));
+    }
+
+    #[test]
+    fn test_validate_response_clone() {
+        let response = ValidateResponse {
+            is_valid: true,
+            claims: Some(Claims::new(Some("user123".to_string()))),
+        };
+
+        let cloned = response.clone();
+        assert_eq!(cloned.is_valid, response.is_valid);
+        assert_eq!(
+            cloned.claims.as_ref().and_then(|c| c.sub.clone()),
+            Some("user123".to_string())
+        );
+    }
+
+    #[test]
+    fn test_validate_response_serialize() {
+        let response = ValidateResponse {
+            is_valid: true,
+            claims: Some(Claims::new(Some("user123".to_string()))),
+        };
+
+        let serialized = serde_json::to_string(&response).unwrap();
+        let value: serde_json::Value = serde_json::from_str(&serialized).unwrap();
+
+        assert_eq!(value["is_valid"], true);
+        assert_eq!(value["claims"]["sub"], "user123");
+    }
 }

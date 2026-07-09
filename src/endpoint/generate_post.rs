@@ -63,4 +63,51 @@ mod tests {
         };
         assert_eq!(generate_request.user_id, "user123");
     }
+
+    #[test]
+    fn test_generate_request_clone() {
+        let request = GenerateRequest {
+            user_id: "user123".to_string(),
+            claims: Some(Claims::new(Some("user123".to_string()))),
+            key: Some("secret".to_string()),
+        };
+
+        let cloned = request.clone();
+        assert_eq!(cloned.user_id, request.user_id);
+        assert_eq!(cloned.key, request.key);
+        assert_eq!(
+            cloned.claims.as_ref().and_then(|c| c.sub.clone()),
+            Some("user123".to_string())
+        );
+    }
+
+    #[test]
+    fn test_generate_request_deserialize() {
+        let json = r#"{"user_id":"user123","claims":null,"key":"my_key"}"#;
+        let request: GenerateRequest = serde_json::from_str(json).unwrap();
+
+        assert_eq!(request.user_id, "user123");
+        assert!(request.claims.is_none());
+        assert_eq!(request.key, Some("my_key".to_string()));
+    }
+
+    #[test]
+    fn test_generate_response_clone() {
+        let response = GenerateResponse {
+            token: "jwt_token".to_string(),
+        };
+
+        let cloned = response.clone();
+        assert_eq!(cloned.token, response.token);
+    }
+
+    #[test]
+    fn test_generate_response_serialize() {
+        let response = GenerateResponse {
+            token: "jwt_token".to_string(),
+        };
+
+        let serialized = serde_json::to_string(&response).unwrap();
+        assert_eq!(serialized, "{\"token\":\"jwt_token\"}");
+    }
 }
