@@ -6,13 +6,17 @@ use axum::{
 };
 use jsonwebtoken::EncodingKey;
 use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn generate_post(
     State(state): State<AppState>,
     Json(body): Json<GenerateRequest>,
 ) -> Result<Json<GenerateResponse>, StatusCode> {
     let header = jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS256);
-    let now = chrono::Utc::now().timestamp() as usize;
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .as_secs() as usize;
     let mut claims = body
         .claims
         .clone()

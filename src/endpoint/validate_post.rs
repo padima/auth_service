@@ -44,14 +44,23 @@ pub struct ValidateResponse {
 mod tests {
     use super::*;
     use jsonwebtoken::EncodingKey;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn now_unix_timestamp() -> usize {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("time went backwards")
+            .as_secs() as usize
+    }
 
     #[tokio::test]
     async fn test_validate_is_valid() {
         let header = jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS256);
+        let now = now_unix_timestamp();
         let claims = Claims {
             sub: Some("user123".to_string()),
-            exp: Some((chrono::Utc::now().timestamp() as usize) + 3600), // Token expires in 1 hour
-            iat: Some(chrono::Utc::now().timestamp() as usize),
+            exp: Some(now + 3600), // Token expires in 1 hour
+            iat: Some(now),
             iss: None,
             aud: None,
         };
@@ -75,10 +84,11 @@ mod tests {
     #[tokio::test]
     async fn test_validate_is_not_valid() {
         let header = jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS256);
+        let now = now_unix_timestamp();
         let claims = Claims {
             sub: Some("user123".to_string()),
-            exp: Some((chrono::Utc::now().timestamp() as usize) + 3600), // Token expires in 1 hour
-            iat: Some(chrono::Utc::now().timestamp() as usize),
+            exp: Some(now + 3600), // Token expires in 1 hour
+            iat: Some(now),
             iss: None,
             aud: None,
         };
