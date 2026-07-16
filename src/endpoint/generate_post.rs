@@ -20,7 +20,7 @@ pub async fn generate_post(
     let mut claims = body
         .claims
         .clone()
-        .unwrap_or_else(|| Claims::new(Some(body.user_id.clone())));
+        .unwrap_or(Claims::new(Some(body.user_id.clone())));
 
     if claims.sub.is_none() {
         claims.sub = Some(body.user_id);
@@ -34,7 +34,7 @@ pub async fn generate_post(
         claims.exp = Some(now + constants::TOKEN_EXPIRATION);
     }
 
-    let key = EncodingKey::from_secret(body.key.as_ref().unwrap_or_else(|| &state.key).as_ref());
+    let key = EncodingKey::from_secret(body.key.as_ref().unwrap_or(&state.key).as_ref());
 
     let token = jsonwebtoken::encode(&header, &claims, &key)
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;

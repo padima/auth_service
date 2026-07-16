@@ -10,8 +10,8 @@ pub mod model;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
-    let host = dotenv::var("SERVER").unwrap_or_else(|_| "127.0.0.1:8088".to_string());
-    let key = dotenv::var("KEY").unwrap_or_else(|_| "my_secret_key".to_string());
+    let host = dotenv::var("SERVER").unwrap_or("127.0.0.1:8088".to_string());
+    let key = dotenv::var("KEY").unwrap_or("my_secret_key".to_string());
 
     let app_state = model::AppState { key };
 
